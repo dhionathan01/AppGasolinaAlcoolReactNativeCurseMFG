@@ -1,6 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
 import { Component } from 'react';
-import { Button, StyleSheet, Text, TextInput, View, Image } from 'react-native';
+import { Button, StyleSheet, Text, TextInput, View, Image, Modal } from 'react-native';
+import MelhorOpcaoModal from './src/components/MelhorOpcaoModal';
 
 export default class App extends Component {
   constructor(props) { 
@@ -9,6 +9,7 @@ export default class App extends Component {
       inputAlcool : 0,
       inputGasolina: 0,
       resultado: '',
+      modalVisible: false
     }
     this.validaInputValue = this.validaInputValue.bind(this);
     this.handleInputAlcool = this.handleInputAlcool.bind(this);
@@ -43,16 +44,25 @@ export default class App extends Component {
   calcularMelhorOpcao() {
     const alcool = parseFloat(this.state.inputAlcool);
     const gasolina = parseFloat(this.state.inputGasolina);
-    if (alcool / gasolina < 0.7) {
-      this.setState({ resultado: 'Melhor usar Álcool' });
+    if (alcool != '' && gasolina != '') {
+      if (alcool / gasolina < 0.7) {
+        this.setState({ resultado: 'Compensa usar Álcool' });
+      } else {
+        this.setState({ resultado: 'Compensa usar Gasolina' });
+      }
+      this.setState({ modalVisible: true });
     } else {
-      this.setState({ resultado: 'Melhor usar Gasolina' });
+      alert('Preencha os campos com valores válidos!')
     }
   }
   render() {
     return (
       <View style={styles.container}>
-
+        <MelhorOpcaoModal  modalVisible={this.state.modalVisible}
+              resultado={this.state.resultado}
+              alcoolValue={this.state.inputAlcool}
+              gasolinaValue={this.state.inputGasolina}
+              onClose={() => this.setState({ modalVisible: false, inputAlcool: '',  inputGasolina : ''})} />
         <View style={styles.headerHome}>
           <View style={styles.headerLogoArea}>
             <Image source={require('./src/img/logo.png')}/>
@@ -70,7 +80,6 @@ export default class App extends Component {
               value={this.state.inputAlcool}
               onChangeText={(valorAlcool) => {this.handleInputAlcool(valorAlcool)}}
             />
-            <Text style={styles.labelInputHome}>{ this.state.inputAlcool}</Text>
           </View>
           <View style={styles.inputGroup}>
             <Text style={styles.labelInputHome}>Gásolina (preço por  litro):</Text>
@@ -81,10 +90,8 @@ export default class App extends Component {
               value={this.state.inputGasolina}
               onChangeText={(valorGasolina) => {this.handleInputGasolina(valorGasolina)}}
             />
-            <Text style={styles.labelInputHome}>{ this.state.inputGasolina}</Text>
           </View>
           <Button title='Calcular' color={'red'} onPress={this.calcularMelhorOpcao}></Button>
-          <Text style={styles.labelInputHome}> Teste: {this.state.resultado}</Text>
         </View>
 
       </View>
